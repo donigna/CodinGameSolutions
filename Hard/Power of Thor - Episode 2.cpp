@@ -17,9 +17,7 @@ struct Giant
     int y;
 };
 
-/*
-    - Represent positon and data of Thor.
-*/
+// Represent positon and data of Thor.
 class Thor
 {
 private:
@@ -43,9 +41,7 @@ public:
 
     // --- Helper Functions ---
 
-    /*
-        Find the average center of all giants using barycenter method.
-    */
+    // Find the average center of all giants using barycenter method.
     pair<int, int> find_center() const
     {
         if (giants.empty())
@@ -70,8 +66,8 @@ public:
 
     /*
         Find all giants inside striking distance
-        @param x - current x position of thor
-        @param y - current y position of thor
+        x - current x position of thor
+        y - current y position of thor
     */
     vector<Giant> _closest(int x, int y) const
     {
@@ -152,10 +148,8 @@ public:
         using MoveOption = tuple<string, int, int, int>;
         vector<MoveOption> possible_moves;
 
-        // Define all 8 possible directional moves + WAIT
         map<string, pair<int, int>> directions = {
-            {"E", {1, 0}}, {"N", {0, -1}}, {"NE", {1, -1}}, {"NW", {-1, -1}}, {"S", {0, 1}}, {"SE", {1, 1}}, {"SW", {-1, 1}}, {"W", {-1, 0}}, {"WAIT", {0, 0}} // Include WAIT as a safe/fallback option
-        };
+            {"E", {1, 0}}, {"N", {0, -1}}, {"NE", {1, -1}}, {"NW", {-1, -1}}, {"S", {0, 1}}, {"SE", {1, 1}}, {"SW", {-1, 1}}, {"W", {-1, 0}}, {"WAIT", {0, 0}}};
 
         for (const auto &entry : directions)
         {
@@ -165,10 +159,8 @@ public:
             int next_x = tx + dx;
             int next_y = ty + dy;
 
-            // Check bounds (0 <= x <= 39, 0 <= y <= 17)
             if (next_x >= 0 && next_x <= MAX_X && next_y >= 0 && next_y <= MAX_Y)
             {
-                // Primary safety check: Must not move into a cell adjacent to a giant
                 if (!giants_too_close(next_x, next_y))
                 {
                     int strike_count = _closest(next_x, next_y).size();
@@ -179,14 +171,11 @@ public:
 
         if (possible_moves.empty())
         {
-            // No safe move found, resort to STRIKE if no move is safe.
             return "STRIKE";
         }
 
-        // Find the best option based on: max strike count, then max distance from center
         pair<int, int> center = find_center();
 
-        // Initialize best with the first option or a placeholder (0 strike, current pos dist)
         MoveOption bestOption = possible_moves[0];
         string bestAction = get<0>(bestOption);
         int bestDist = dist({get<2>(bestOption), get<3>(bestOption)}, center);
@@ -199,7 +188,6 @@ public:
             int current_y = get<3>(option);
             int currentDist = dist({current_x, current_y}, center);
 
-            // Logic: Maximize strike count, then maximize distance from center
             if (currentStrikeCount > get<1>(bestOption) ||
                 (currentStrikeCount == get<1>(bestOption) && currentDist > bestDist))
             {
@@ -226,12 +214,10 @@ public:
         int centerX, centerY;
         tie(centerX, centerY) = find_center();
 
-        // 1. Safety check: If a giant is too close (1 unit distance), run away.
         if (giants_too_close(tx, ty))
         {
             return run_away();
         }
-        // 2. Default: Move towards the center of the giant cluster.
         else
         {
             return find_move(centerX, centerY);
@@ -244,17 +230,14 @@ public:
         if (n == 0)
             return "WAIT";
 
-        // Check if ALL remaining giants are within the strike zone (WIDE=4) of the CURRENT position.
         vector<Giant> closest_giants = _closest(tx, ty);
 
         if (n == closest_giants.size())
         {
-            // All giants are in range, STRIKE!
             return "STRIKE";
         }
         else
         {
-            // Not all giants are in range, either move closer or run away.
             return find_best_move();
         }
     }
