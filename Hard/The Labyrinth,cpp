@@ -1,0 +1,112 @@
+#include <bits/stdc++.h>
+using namespace std;
+
+const int INF = 1e9;
+
+int r, c, a;
+bool backToStart = false;
+
+// Check if cell is inside the map
+bool isOnMap(int x, int y)
+{
+    return (x >= 0 && x < r && y >= 0 && y < c);
+}
+
+// BFS to find first step toward goal
+pair<int, int> BFS(vector<string> &game_map, pair<int, int> start, char goal)
+{
+    vector<vector<int>> dist(r, vector<int>(c, INF));
+    vector<vector<pair<int, int>>> parent(r, vector<pair<int, int>>(c, {-1, -1}));
+    queue<pair<int, int>> q;
+
+    q.push(start);
+    dist[start.first][start.second] = 0;
+
+    while (!q.empty())
+    {
+        auto [x, y] = q.front();
+        q.pop();
+
+        vector<pair<int, int>> dirs = {
+            {x - 1, y}, {x + 1, y}, {x, y - 1}, {x, y + 1}};
+
+        for (auto &d : dirs)
+        {
+            int nx = d.first, ny = d.second;
+            if (!isOnMap(nx, ny))
+                continue;
+
+            // Forbidden when searching '?'
+            if (goal == '?' && game_map[nx][ny] == 'C')
+                continue;
+            if (game_map[nx][ny] == '#')
+                continue;
+
+            if (dist[nx][ny] == INF)
+            {
+                dist[nx][ny] = dist[x][y] + 1;
+                parent[nx][ny] = {x, y};
+                q.push({nx, ny});
+
+                if (game_map[nx][ny] == goal || (goal == '?' && game_map[nx][ny] == '?'))
+                {
+                    // Trace back first step
+                    pair<int, int> v = {nx, ny};
+                    while (parent[v.first][v.second] != start)
+                    {
+                        v = parent[v.first][v.second];
+                    }
+                    return v;
+                }
+            }
+        }
+    }
+    return {-1, -1}; // No path
+}
+
+pair<int, int> whereToGo(vector<string> &map, pair<int, int> pos, bool back)
+{
+    if (!back)
+    {
+        auto go = BFS(map, pos, '?');
+        if (go.first != -1)
+            return go;
+        return BFS(map, pos, 'C');
+    }
+    return BFS(map, pos, 'T');
+}
+
+int main()
+{
+    cin >> r >> c >> a;
+    cin.ignore();
+
+    while (true)
+    {
+        int kr, kc;
+        cin >> kr >> kc;
+        cin.ignore();
+
+        vector<string> rows(r);
+        for (int i = 0; i < r; i++)
+        {
+            getline(cin, rows[i]);
+        }
+
+        if (rows[kr][kc] == 'C')
+        {
+            backToStart = true;
+        }
+
+        pair<int, int> nxt = whereToGo(rows, {kr, kc}, backToStart);
+
+        if (nxt.first > kr)
+            cout << "DOWN\n";
+        else if (nxt.first < kr)
+            cout << "UP\n";
+        else if (nxt.second > kc)
+            cout << "RIGHT\n";
+        else
+            cout << "LEFT\n";
+    }
+}

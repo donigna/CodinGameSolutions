@@ -2,6 +2,7 @@
     "files.associations": {
         "*.shader": "UnityShader",
         "tuple": "cpp",
-        "limits": "cpp"
+        "limits": "cpp",
+        "the labyrinth,cpp": "cpp"
     }
 }
