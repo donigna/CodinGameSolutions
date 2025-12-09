@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "*.shader": "UnityShader",
+        "tuple": "cpp",
+        "limits": "cpp"
+    }
+}
